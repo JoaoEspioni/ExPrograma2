@@ -7,3 +7,22 @@ def cria_pecas():
             pecas.append([valor_esquerda, valor_direita])
     random.shuffle(pecas)
     return pecas
+
+def inicia_jogo(num_jogadores, pecas):
+    jogadores = {}
+    pecas_por_jogador = 7
+
+    indice = 0
+    for jogador in range(num_jogadores):
+        jogadores[jogador] = pecas[indice:indice + pecas_por_jogador]
+        indice += pecas_por_jogador
+
+    monte = pecas[indice:]
+    mesa = []
+
+    return {
+        'jogadores': jogadores,
+        'monte': monte,
+        'mesa': mesa
+    }
+
