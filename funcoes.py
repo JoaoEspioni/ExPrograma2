@@ -26,3 +26,8 @@ def inicia_jogo(num_jogadores, pecas):
         'mesa': mesa
     }
 
+def verifica_ganhador(jogadores):
+    for numero_jogador in jogadores:
+        if len(jogadores[numero_jogador]) == 0:
+            return numero_jogador
+    return -1
