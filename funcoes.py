@@ -31,3 +31,9 @@ def verifica_ganhador(jogadores):
         if len(jogadores[numero_jogador]) == 0:
             return numero_jogador
     return -1
+
+def conta_pontos(pecas_jogador):
+    pontos = 0
+    for peca in pecas_jogador:
+        pontos += peca[0] + peca[1]
+    return pontos
