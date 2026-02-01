@@ -37,3 +37,27 @@ def conta_pontos(pecas_jogador):
     for peca in pecas_jogador:
         pontos += peca[0] + peca[1]
     return pontos
+
+def posicoes_possiveis(mesa, pecas_jogador):
+    posicoes = []
+
+    if mesa == []:
+        indice = 0
+        for i in pecas_jogador:
+            posicoes.append(indice)
+            indice += 1
+        return posicoes
+
+    ponta_esquerda = mesa[0][0]
+    ponta_direita = mesa[-1][1]
+
+    indice = 0
+    for peca in pecas_jogador:
+        if (peca[0] == ponta_esquerda or
+            peca[1] == ponta_esquerda or
+            peca[0] == ponta_direita or
+            peca[1] == ponta_direita):
+            posicoes.append(indice)
+        indice += 1
+
+    return posicoes
