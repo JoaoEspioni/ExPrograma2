@@ -6,7 +6,16 @@ print("=> Design de Software\n")
 print("Bem-vindo(a) ao jogo de Dominó! O objetivo desse jogo é ficar sem peças na sua mão antes dos outros jogadores.\n")
 print("Vamos começar!!!\n")
 
-num_jogadores = int(input("Quantos jogadores? (2-4) "))
+while True:
+    entrada = input("Quantos jogadores? (2-4) ").strip()
+    if not entrada.isdigit():
+        print("Digite um número válido (2, 3 ou 4).")
+        continue
+    num_jogadores = int(entrada)
+    if num_jogadores < 2 or num_jogadores > 4:
+        print("Número de jogadores deve ser 2, 3 ou 4.")
+        continue
+    break
 
 pecas = cria_pecas()
 estado = inicia_jogo(num_jogadores, pecas)  
