@@ -20,19 +20,85 @@ def mostrar_mesa(mesa):
         i += 1
     print(linha.strip())
 
-def mostrar_mao(mao):
-    i = 1
-    while i <= len(mao):
-        p = mao[i-1]
-        print(str(i).rjust(2) + " " + peca_str(p), end="   ")
+def cor(texto, codigo):
+    return f"\033[{codigo}m{texto}\033[0m"
+
+def peca_colored_str(p):
+    s = p[0] + p[1]
+    m = s % 6
+    if m == 0:
+        return cor(peca_str(p), 32)   # verde
+    if m == 1:
+        return cor(peca_str(p), 36)   # azul claro
+    if m == 2:
+        return cor(peca_str(p), 33)   # amarelo
+    if m == 3:
+        return cor(peca_str(p), 35)   # rosa
+    if m == 4:
+        return cor(peca_str(p), 34)   # azul
+    return cor(peca_str(p), 31)       # vermelho
+
+def mostrar_mao(mao, posicoes_possiveis_na_mao=None):
+    if posicoes_possiveis_na_mao is None:
+        posicoes_possiveis_na_mao = []
+
+    widths = []
+    plain_tokens = []
+    colored_tokens = []
+    i = 0
+    while i < len(mao):
+        plain = peca_str(mao[i])
+        col = peca_colored_str(mao[i])
+        plain_tokens.append(plain)
+        colored_tokens.append(col)
+        widths.append(len(plain))
         i += 1
-    print()
+
+    # separador entre tokens 
+    sep = "   "  
+
+    # 1) linha de asteriscos 
+    if plain_tokens:
+        stars = []
+        j = 0
+        while j < len(plain_tokens):
+            w = widths[j]
+            if j in posicoes_possiveis_na_mao:
+                star = "*".center(w)
+            else:
+                star = " " * w
+            stars.append(star)
+            j += 1
+        # juntar com separador e imprimir
+        line_stars = sep.join(stars)
+        print(line_stars)
+
+    # 2) linha das peças coloridas 
+    if colored_tokens:
+        line_pieces = sep.join(colored_tokens)
+        print(line_pieces)
+
+    # 3) linha dos índices 
+    if plain_tokens:
+        indices = []
+        n = 1
+        idx = 0
+        while idx < len(plain_tokens):
+            w = widths[idx]
+            indices.append(str(n).center(w))
+            n += 1
+            idx += 1
+        line_idx = sep.join(indices)
+        print(line_idx)
+
 
 def pedir_peca_inicial_humano(estado):
     pecas_humanas = estado['jogadores'][0]
     print("\nVocê foi sorteado para começar!")
     print("\nSuas peças:")
-    mostrar_mao(pecas_humanas)
+    # mesa vazia -> todas as posições possíveis
+    listar = list(range(len(pecas_humanas)))
+    mostrar_mao(pecas_humanas, listar)
 
     while True:
         escolha = input("Escolha a peça inicial (digite o número): ").strip()
@@ -51,12 +117,13 @@ def pedir_peca_inicial_humano(estado):
 def executa_jogada_inicial(jogador_atual, estado):
     if jogador_atual == 0:
         pedir_peca_inicial_humano(estado)
+        return (0, None)
     else:
         mao_bot = estado['jogadores'][jogador_atual]
         idx_bot = random.randrange(len(mao_bot))
         peca_escolhida = mao_bot.pop(idx_bot)
         estado['mesa'] = adiciona_na_mesa(peca_escolhida, estado['mesa'])
-        print("\nJogador " + str(jogador_atual) + " começou e colocou: " + peca_str(peca_escolhida))
+        return (jogador_atual, peca_escolhida)
 
 rodando = True
 while rodando:
@@ -78,12 +145,21 @@ while rodando:
 
     jogador_atual = random.randrange(num_jogadores)
 
-    executa_jogada_inicial(jogador_atual, estado)
+    starter, peca_inicial = executa_jogada_inicial(jogador_atual, estado)
+
+    if starter == 0 and peca_inicial is None:
+        pass
+    else:
+        qtd_antes = len(estado['jogadores'][starter]) + 1
+        print("\nJogador: " + str(starter) + " com " + str(qtd_antes) + " peça(s)")
+        if peca_inicial is not None:
+            print("Colocou: " + peca_str(peca_inicial))
 
     print("\nMESA:")
     mostrar_mesa(estado['mesa'])
 
     print("\nJogador: Você com " + str(len(estado['jogadores'][0])) + " peça(s)\n")
+
     mostrar_mao(estado['jogadores'][0])
     print("\nMonte com " + str(len(estado['monte'])) + " peça(s).")
 
@@ -102,10 +178,12 @@ while rodando:
             print("MESA:")
             mostrar_mesa(estado['mesa'])
             print("\nSua mão (" + str(len(mao)) + " peça(s)):")
-            mostrar_mao(mao)
+            # mostra a mão com asteriscos nas posições possíveis
+            mostrar_mao(mao, poss)
             print("Monte com " + str(len(estado['monte'])) + " peça(s).")
 
             if poss:
+                # lista as posições possíveis em forma legível (1-based)
                 print("Posições possíveis (índices na sua mão): ", end="")
                 j = 0
                 while j < len(poss):
