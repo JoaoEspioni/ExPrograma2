@@ -61,3 +61,25 @@ def posicoes_possiveis(mesa, pecas_jogador):
         indice += 1
 
     return posicoes
+
+def adiciona_na_mesa(peca, mesa):
+    if not mesa:
+        return [peca]
+
+    ponta_esquerda = mesa[0][0]
+    ponta_direita = mesa[-1][1]
+
+    a = peca[0]
+    b = peca[1]
+
+    if b == ponta_esquerda:
+        return [[a, b]] + mesa
+    if a == ponta_esquerda:
+        return [[b, a]] + mesa
+
+    if a == ponta_direita:
+        return mesa + [[a, b]]
+    if b == ponta_direita:
+        return mesa + [[b, a]]
+
+    return mesa
